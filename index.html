@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aditya AI Interview Assistant</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="sidebar">
+    <button id="newChatBtn" class="new-chat-btn">+ New interview</button>
+    <div class="jd-upload">
+      <label for="jdFile" class="jd-label">Upload job description (PDF/DOCX)</label>
+      <input type="file" id="jdFile" accept=".pdf,.docx">
+      <div id="jdStatus" class="jd-status"></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="header">Aditya AI Interview Assistant</div>
+
+    <div id="messages" class="messages">
+      <div class="message assistant">
+        Hi, I'm Aditya's AI interview assistant. Ask me anything about his background, skills, or projects.
+      </div>
+    </div>
+
+    <div class="input-bar">
+      <textarea id="userInput" placeholder="Ask a question..." rows="1"></textarea>
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+
+<script src="script.js"></script>
+</body>
+</html>
