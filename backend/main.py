@@ -15,7 +15,7 @@ Run locally:
 
 import os
 import tempfile
-
+from fastapi.responses import StreamingResponse
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -64,7 +64,7 @@ def session_exists(session_id: str):
     return {"exists": sessions.session_exists(session_id)}
 
 
-@app.post("/session/{session_id}/chat", response_model=ChatResponse)
+@app.post("/session/{session_id}/chat")
 def chat(session_id: str, req: ChatRequest):
     brain = sessions.get_brain(session_id)
     if brain is None:
@@ -73,8 +73,10 @@ def chat(session_id: str, req: ChatRequest):
     if not req.message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty.")
 
-    reply = brain.ask(req.message)
-    return {"reply": reply}
+    return StreamingResponse(
+        brain.ask_stream(req.message),
+        media_type="text/plain",
+    )
 
 
 @app.post("/session/{session_id}/upload-jd", response_model=JDUploadResponse)
