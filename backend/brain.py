@@ -140,6 +140,31 @@ class InterviewBrain:
         self.history.append({"role": "assistant", "content": reply})
         return reply
 
+def ask_stream(self, hr_input: str):
+        self.history.append({"role": "user", "content": hr_input})
+        full_reply = ""
+
+        try:
+            stream = self.client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=self._build_messages(),
+                temperature=0.4,
+                stream=True,
+            )
+            for chunk in stream:
+                delta = chunk.choices[0].delta.content
+                if delta:
+                    full_reply += delta
+                    yield delta
+        except Exception as e:
+            self.history.pop()
+            yield (
+                "Sorry, I ran into an issue reaching the AI service "
+                f"({e.__class__.__name__}). Please try again."
+            )
+            return
+
+        self.history.append({"role": "assistant", "content": full_reply})
 
 def main():
     """Kept for local CLI testing -- not used by the API."""
