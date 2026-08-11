@@ -140,7 +140,13 @@ class InterviewBrain:
         self.history.append({"role": "assistant", "content": reply})
         return reply
 
-def ask_stream(self, hr_input: str):
+    def ask_stream(self, hr_input: str):
+        """
+        Same as ask(), but yields the reply token-by-token as it arrives
+        from Groq instead of returning it all at once. The full reply is
+        still assembled and stored in history once the stream ends, so
+        session memory works exactly the same either way.
+        """
         self.history.append({"role": "user", "content": hr_input})
         full_reply = ""
 
@@ -165,6 +171,7 @@ def ask_stream(self, hr_input: str):
             return
 
         self.history.append({"role": "assistant", "content": full_reply})
+
 
 def main():
     """Kept for local CLI testing -- not used by the API."""
