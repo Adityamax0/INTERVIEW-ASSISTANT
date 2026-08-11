@@ -1,5 +1,5 @@
 // Change this if your backend runs somewhere other than localhost:8000
-const API_BASE = "https://interview-assistant-2wju.onrender.com";
+const API_BASE = "http://127.0.0.1:8000";
 
 let sessionId = null;
 
@@ -42,6 +42,11 @@ async function sendMessage() {
   inputEl.value = "";
   sendBtn.disabled = true;
 
+  // Create an empty assistant bubble to fill in as chunks arrive.
+  const replyEl = document.createElement("div");
+  replyEl.className = "message assistant";
+  messagesEl.appendChild(replyEl);
+
   try {
     const res = await fetch(`${API_BASE}/session/${sessionId}/chat`, {
       method: "POST",
@@ -51,14 +56,23 @@ async function sendMessage() {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      addMessage(err.detail || "Something went wrong.", "system");
+      replyEl.textContent = err.detail || "Something went wrong.";
+      replyEl.className = "message system";
       return;
     }
 
-    const data = await res.json();
-    addMessage(data.reply, "assistant");
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      replyEl.textContent += decoder.decode(value, { stream: true });
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
   } catch (e) {
-    addMessage("Could not reach the server.", "system");
+    replyEl.textContent = "Could not reach the server.";
+    replyEl.className = "message system";
   } finally {
     sendBtn.disabled = false;
   }
