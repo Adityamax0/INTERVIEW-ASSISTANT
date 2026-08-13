@@ -53,11 +53,14 @@ class JDUploadResponse(BaseModel):
     message: str
 
 
-@app.post("/session", response_model=SessionResponse)
-def create_session():
-    session_id = sessions.create_session()
-    return {"session_id": session_id}
-
+@app.post("/session/{session_id}/chat")
+def chat(session_id: str, req: ChatRequest):
+    brain = sessions.get_brain(session_id)
+    if brain is None:
+        raise HTTPException(status_code=404, detail="Session not found.")
+    if not req.message.strip():
+        raise HTTPException(status_code=400, detail="Message cannot be empty.")
+    return StreamingResponse(brain.ask_stream(req.message), media_type="text/plain")
 
 @app.get("/session/{session_id}/exists")
 def session_exists(session_id: str):
